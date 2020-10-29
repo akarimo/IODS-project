@@ -3,7 +3,7 @@
 
 The course is an open data science course for PhD students at the University of Helsinki. I'm especially expecting to learn some more R and R Markdown, and also to use GitHub. 
 
-The link to my GitHub repository is https://github.com/your_github_username/IODS-project
+The link to my GitHub repository is https://github.com/akarimo/IODS-project
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
