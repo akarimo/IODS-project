@@ -65,7 +65,7 @@ To analyze how well this model fits the assumptions of linear regression, we pro
 ```{r}
 # draw diagnostic plots
 par(mfrow = c(2,2))
-plot(model3, which = c(1,2,5))
+plot(model2, which = c(1,2,5))
 ```
 
 ```{r}
