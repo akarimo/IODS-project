@@ -1,10 +1,72 @@
-# Insert chapter 2 title here
+# Chapter 2: Regression and model validation
 
-*Describe the work you have done this week and summarize your learning.*
+In this chapter I report what I did for the regression analysis assignment. I used JYTOPKYS3 survey data collected by Kimmo Vehkalahti between 3.12.2014 and 10.1.2015. Below you can see the structure and dimensions of the data. It has information on the gender and age of the respondents, as well as on their learning skills, attitudes, and exam points in a statistical course exam. All other variables besides "gender", which is a dichotomous variable, are continuous variables. Variables "attitude", "deep", "stra", and "surf" are averages of 10 variables measured on a likert-scale. The analyzed version of the data includes 166 respondents, because respondents who didn't attend an exam were removed.
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+```{r}
+#read the data
+
+learning2014 <- read.csv("~/Desktop/IODS/R project for ODS/IODS-project/data/learning2014.csv", row.names = 1)
+
+#checking the structure and dimensions of the dataset
+
+str(learning2014)
+dim(learning2014)
+
+```
+
+In the plot below you can see scatterplot matrices, distributions, and correlations between the variables by gender. The information on females is coloured pink, and the information on males is coloured light blue. There are a lot more females in the dataset, and most respondents are under 40 years old. The box plots and distributions of the variables by gender seem otherwise quite similar, but it seems that females have more variance in their attitude compared to males. Also, the scores for attitude seem in general a bit lower for females compared to males. We can also see that there is a larger share of males with lower scores for the variable "surf" compared to females. 
+
+The correlations between variables are in general quite low, and not statistically significant. We can also see from the scatterplots, that the relationships between these variables seem mostly quite random. Variable "surf" is significantly negatively correlated with both "attitude" and "deep", but when we look at it by gender, we see that this correlation is only significant for males. Variable "surf" is also significantly negatively correlated with "stra" for all respondents, but we dont find it significant by gender. Variable "attitude" and variable "Points" are significantly positively correlated with each other for both males and females. 
+
+```{r}
+#loading required packages
+
+library(GGally)
+library(ggplot2)
+
+# creating a plot of the data
+plot_learning2014 <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3),
+             lower = list(combo = wrap("facethist", bins = 20)))
+
+plot_learning2014
+```
+
+After studying the relationships of these variables graphically and through correlations, it seems that the "attitude" variable might be explaining the variation in exam points the best. It also seems possible, that "stra" and "surf" would be significantly associated with "Points" in a more advanced model. Below I present a summary of a multiple linear regression model explaining exam points with attitude, strategic learning ("stra"), and surface learning ("surf"). All of these variables are approximately normally distributed according to visual interpretation of their distribution. However, the scatterplots representing the relationship between "Points" and "stra", and "Points" and "surf" don't indicate a linear relationship between these variables.
+
+```{r}
+# creating a regression model with attitude, strategic learning, and 
+# surface learning as explanatory variables
+
+model1 <- lm(Points ~ attitude + stra + surf, data = learning2014)
+
+# print out a summary of the model
+
+summary(model1)
+```
+
+In a model summary, significant parameter estimates are typically marked with stars. As you can see from the model summary above, attitude is in fact significantly positively associated with exam points, but strategic learning and surface learning are not. Columns "t value" and "Pr(>|t|)" in the "Coefficients" table include the t-value and p-value of the parameters. These values correspond to a statistical test of a null hypothesis, that the actual value of the parameter estimate would be zero. It is in general accepted, that p-values under 0.05 indicate a statistically significant parameter estimate. In this case the p-value of the "attitude" parameter is very low, but for "stra" and "surf" it's nowhere close 0.05.
+
+Because "stra" and "surf" are not significantly associated with "Points", I remove them from the model. You can see the results of the new model below. 
+
+```{r}
+#remove stra and surf and run model again
+
+model2 <- lm(Points ~ attitude, data = learning2014)
+
+# print out a summary of the model
+
+summary(model2)
+```
+
+From the model summary above you can see, that in this simple linear model the parameter estimate for the variable "attitude" is slightly higher than in the previous model. Also, in the "Residuals" table we see, that the residuals for this model are smaller than for the previous model, indicating a better model fit. The model fit can be further analyzed with the value of the Multiple R squared at the bottom of the model summary. In this case it's 0.19, indicating that the model can explain 19 percent of the variance in our dependent variable. In the case of this simple linear regression, this means that differences in attitude explain about a fifth of the variance in exam points.
+
+To analyze how well this model fits the assumptions of linear regression, we produce some model diagnostics below. The assumtions of a linear regression include, that the errors have constant variance implying that the size of the errors is not dependent on the explanatory variables, that the errors are normally distributed, and that the errors are not correlated. From the "Residuals vs Fitted" plot in the top left corner we can see, that the relationship between the residuals and the fitted values is quite random, which indicates that the size of the errors is not dependent on the explanatory variable. In the "Normal Q-Q" plot we see that the errors are reasonably normally distributed, and thus fit the normality assumption, and the results in the "Residuals vs Leverage" plot imply, that no single observation has unusually high impact on the model. These model diagnostics imply a reasonably good fit to the data, so we can trust our results. 
+
+```{r}
+# draw diagnostic plots
+par(mfrow = c(2,2))
+plot(model3, which = c(1,2,5))
+```
 
 ```{r}
 date()
