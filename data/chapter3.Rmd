@@ -1,0 +1,87 @@
+## Chapter 3: Logistic regression
+
+In this chapter I report the logistic regression exercise. I'm using data from UCI Machine Learning Repository. The data has information on student grades, demographic, social and school related features for students in two Portuguese schools. Below is a list of attributes in the data.
+
+```{r}
+#read the data
+
+alc <- read.csv("~/Desktop/IODS/R project for ODS/IODS-project/data/alc.csv")
+
+#print names of variables
+colnames(alc)
+```
+
+
+I'm studying the effect of sex, age, number of school absences, and final grade (G3) on high alcohol use. My hypotheses are:
+
+Hypothesis 1: male students have a bigger risk of high alcohol use compared to female students
+Hypothesis 2: the older the student, the bigger the risk of high alcohol use
+Hypothesis 3: the more school absences, the bigger the risk of high alcohol use
+Hypothesis 4: the lower the grade, the bigger the risk of high alcohol use
+
+```{r}
+library(ggplot2)
+
+#barplot sex and high use
+ggplot(data = alc, aes(x = sex, fill = high_use)) + geom_bar()
+
+#barplot age and high use
+ggplot(data = alc, aes(x = age, fill = high_use)) + geom_bar()
+
+#boxplot absences and high use
+ggplot(alc, aes(x = high_use, y = absences)) + geom_boxplot()
+
+#cross-tabulation grades and high use
+table(highuse = alc$high_use, grades = alc$G3)
+
+
+```
+
+From the plots above we can see, that it does seem, that high use is more common among male students compared to female students, but the relationship with high use and age is not clear based on the bar plot. Based on the boxplot it seems, that high use is indeed to some extent related to higher amonts of absences, and based on the cross-tabulation it seems, that students with higher grades are less likely to belong in the group of high users.
+
+Next I will fit the logistic regression model. From the model summary below we can see, that sex and absences are significantly associated with high alcohol use. Odds ratios in the table below show, that males are approximately 2.68 times more likely to be in the category of high use compared to females. Also, one point increase in absences increases the odds of being in the high use category by approximately 1.06. Age or grade (G3) are not statistically significantly associated with high alcohol use.
+
+```{r}
+# fit the model
+model1 <- glm(high_use ~ sex + age + absences + G3, data = alc, family = "binomial")
+summary(model1)
+
+```
+
+```{r}
+library(tidyr); library(dplyr)
+
+# compute odds ratios (OR)
+OR <- coef(model1) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(model1) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+
+Next, we look at the predictive power of the model with only sex and absences as predictors. 
+
+```{r}
+library(dplyr)
+
+# fit a new model with only significant predictors
+model_pred <- glm(high_use ~ sex + absences, data = alc, family = "binomial")
+
+
+# predict() the probability of high_use
+probabilities <- predict(model_pred, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probability > 0.5)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+g <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+g + geom_point()
+```
