@@ -19,7 +19,7 @@ ggpairs(human)
 cor(human)%>%corrplot()
 ```
 
-# Principal component analysis
+## Principal component analysis
 
 Based on the results below, principal component analysis doesn't seem to work with unstandardized data. The fist principal component seems to capture almost all of the variance, and it's heavily correlated with GNI.
 
@@ -41,7 +41,7 @@ summary(pca_human_std)
 biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
 ```
 
-# Multiple Correspondence Analysis 
+## Multiple Correspondence Analysis 
 
 In this exercise I use the "tea" dataset. There are 36 variables in the dataset, so I will only keep variables "Tea", "How", "how", "sugar", "where", and "lunch".
 
