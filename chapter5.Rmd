@@ -3,6 +3,7 @@
 In this chapter I use the "human" data, more info can be found in https://raw.githubusercontent.com/TuomoNieminen/Helsinki-Open-Data-Science/master/datasets/human_meta.txt
 
 The data includes several indicators from most countries in the world; the ratio of females and males with at least secondary education, the ratio of females and males in the labour force, expeted years of schooling, life expectancy at birth, Gross National Income per capita, maternal mortality ratio, adolescent birth rate, and percentage of female representatives in parliament.
+
 ```{r}
 human <- read.csv("~/Desktop/IODS/R project for ODS/IODS-project/data/human.csv", row.names = 1)
 
