@@ -39,5 +39,11 @@ output:
 
 ***
 
+```{r child = "chapter5.Rmd"}
+# Chapter 5 included.
+```
+
+***
+
 (more chapters to be added similarly as we proceed with the course!)
 

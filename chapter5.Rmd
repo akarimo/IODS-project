@@ -1,0 +1,72 @@
+# Chapter 5: Dimensionality reduction techniques
+
+In this chapter I use the "human" data, more info can be found in https://raw.githubusercontent.com/TuomoNieminen/Helsinki-Open-Data-Science/master/datasets/human_meta.txt
+
+The data includes several indicators from most countries in the world; the ratio of females and males with at least secondary education, the ratio of females and males in the labour force, expeted years of schooling, life expectancy at birth, Gross National Income per capita, maternal mortality ratio, adolescent birth rate, and percentage of female representatives in parliament.
+```{r}
+human <- read.csv("~/Desktop/IODS/R project for ODS/IODS-project/data/human.csv", row.names = 1)
+
+summary(human)
+```
+
+In the plots below we see that some of the variables are approximately normally distributed (e.g. expected years of schooling), while the distribution of other variables is very much skewed. The ratio of females and males with at least secondary education, expeted years of schooling, life expectancy at birth, and Gross National Income per capita are all positively correlated with each other, and negatively correlated with maternal mortality ratio and adolescent birth rate. The ratio of females and males in the labour force and percentage of female representatives in parliament aren't correlated with anything.
+
+```{r}
+library(GGally)
+library(dplyr)
+library(corrplot)
+ggpairs(human)
+cor(human)%>%corrplot()
+```
+
+# Principal component analysis
+
+Based on the results below, principal component analysis doesn't seem to work with unstandardized data. The fist principal component seems to capture almost all of the variance, and it's heavily correlated with GNI.
+
+```{r}
+pca_human <- prcomp(human)
+summary(pca_human)
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+Next I standardize the data and re-do the analysis to see if it helps. From the results below we see, that now the first principal component captures about 54 percent of the variability, and the second principal component about 16 percent. The ratio of females and males with at least secondary education, expeted years of schooling, life expectancy at birth, Gross National Income per capita, maternal mortality ratio and adolescent birth rate seem to contribute to the first principal component, while the ratio of females and males in the labour force and percentage of female representatives in parliament contribute to the second principal component.
+
+Based on these results and how the countries are situated in the biplot, the first principal component seems to capture mostly the wealth of the country. The second component captures some aspects of gender equality.
+
+```{r}
+human_std <- scale(human)
+
+pca_human_std <- prcomp(human_std)
+summary(pca_human_std)
+biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+# Multiple Correspondence Analysis 
+
+In this exercise I use the "tea" dataset. There are 36 variables in the dataset, so I will only keep variables "Tea", "How", "how", "sugar", "where", and "lunch".
+
+```{r}
+library(FactoMineR)
+library(tidyr)
+
+data(tea)
+str(tea)
+dim(tea)
+
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+tea_time <- dplyr::select(tea, one_of(keep_columns))
+str(tea_time)
+
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+Results of the multiple correspondence analysis (MCA) below show, that the first dimension holds about 15 percent of the variance, and the second about 14 percent of the variance. There are 11 dimensions in total, and all of them retain some of the variability. The biplot shows variables drawn on the first two dimensions. Categories of the same variable are coloured with the same colour. The distance between the variable categories gives a measure of their similarity. For example in the bottom right corner we see that people who use unpacked tea buy their tea from a tea shop rather than chain store.
+
+```{r}
+mca <- MCA(tea_time, graph = FALSE)
+
+summary(mca)
+
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+```

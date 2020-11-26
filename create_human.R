@@ -1,7 +1,7 @@
 #Aasa Karimo
-#18.11.2020
+#18.11.2020 and 26.11.2020
 #Data wrangling for chapter 5
-
+#Working with "human" data, more info on data here https://raw.githubusercontent.com/TuomoNieminen/Helsinki-Open-Data-Science/master/datasets/human_meta.txt
 
 #read the data
 
@@ -48,3 +48,44 @@ dim(human)
 #saving the joined dataset to the "data" folder
 
 write.csv(human, file.path("~/Desktop/IODS/R project for ODS/IODS-project/data", "human.csv"))
+
+####### work continues 26.11.2020
+
+#the dataset used is the "human" data that combines the “Human development” and “Gender inequality” datas
+
+#transform GNI to numeric
+# access the stringr package
+library(stringr)
+
+# remove the commas from GNI and replace it with a numeric version
+human$GNI <- str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric
+
+#exclude unneeded variables
+keep <- c('country', 'edu_ratio', 'lab_ratio', 'exp_edu', 'exp_life', 'GNI', 'mat_mor', 'ado_birth', 'rep_parl')
+human <- select(human, one_of(keep))
+
+#remove rows with missing values
+human <- filter(human, complete.cases(human))
+
+#Remove the observations which relate to regions instead of countries
+
+# look at the last 10 observations of human
+tail(human, n = 10L)
+
+# define the last indice we want to keep
+last <- nrow(human) - 7
+
+# choose everything until the last 7 observations
+human <- human[1:last, ]
+
+# add countries as rownames
+rownames(human) <- human$country
+
+#remove variable country
+human <- select(human, -country)
+
+dim(human)
+
+#save the data with row names
+write.csv(human, file.path("~/Desktop/IODS/R project for ODS/IODS-project/data", "human.csv"), row.names=TRUE)
+
