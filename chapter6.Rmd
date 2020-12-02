@@ -2,7 +2,7 @@
 
 In this chapter I'm implementing the analyses of Chapter 8 of MABS using the RATS data, and the analyses of Chapter 9 of MABS using the BPRS data. 
 
-#RATS data
+##RATS data
 
 First, let's load the RATS data in long form and check the structure.
 
@@ -110,7 +110,7 @@ lm_RATS <- lm(mean ~ baseline + Group, data = RATSS_4)
 anova(lm_RATS)
 ```
 
-#BPRS data
+##BPRS data
 
 Then, let's load the BPRS data in long form. 
 ```{r}
